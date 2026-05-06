@@ -5,7 +5,7 @@ import { useState } from "react";
 type Snippet = {
   title: string;
   author: string;
-  lang: "HTML" | "CSS" | "JS" | "TS" | "PHP";
+  lang: "HTML" | "CSS" | "JS";
   code: string;
   views: number;
   likes: number;
