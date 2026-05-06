@@ -1,4 +1,4 @@
-import { Heart, Eye, Copy, User } from "lucide-react";
+import { Heart, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -158,17 +158,15 @@ export const SnippetsGrid = () => {
               <div className="p-5 space-y-3">
                 <h3 className="font-bold text-lg text-primary">{s.title}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2">{s.desc}</p>
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="w-7 h-7 rounded-full bg-muted grid place-items-center">
-                      <User className="w-3.5 h-3.5" />
-                    </span>
-                    <span className="font-semibold text-foreground">{s.author}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{s.views}</span>
-                    <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" />{s.likes}</span>
-                  </div>
+                <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5 font-semibold">
+                    <Copy className="w-3.5 h-3.5" />
+                    {s.views} نسخة
+                  </span>
+                  <span className="flex items-center gap-1.5 font-semibold">
+                    <Heart className="w-3.5 h-3.5" />
+                    {s.likes} تفاعل
+                  </span>
                 </div>
                 <Button variant="outline" size="sm" className="w-full gap-2">
                   <Copy className="w-4 h-4" />

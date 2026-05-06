@@ -1,13 +1,12 @@
-import { Code2, Github, Twitter, Send } from "lucide-react";
+import { Github, Twitter, Send } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 
 export const Footer = () => (
   <footer className="bg-primary text-primary-foreground">
     <div className="container py-14 grid md:grid-cols-4 gap-10">
       <div className="md:col-span-2">
         <div className="flex items-center gap-2.5 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-secondary grid place-items-center">
-            <Code2 className="w-5 h-5 text-primary" />
-          </div>
+          <img src={logo} alt="شعار منصتي" className="w-11 h-11 rounded-xl object-contain bg-background" />
           <div>
             <div className="font-extrabold text-lg">منصتي</div>
             <div className="text-[11px] text-primary-foreground/70">منصة ليبية لتبادل الأكواد</div>
