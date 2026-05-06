@@ -5,7 +5,7 @@ import { useState } from "react";
 type Snippet = {
   title: string;
   author: string;
-  lang: "HTML" | "CSS" | "JS" | "TS" | "PHP";
+  lang: "HTML" | "CSS" | "JS";
   code: string;
   views: number;
   likes: number;
@@ -54,33 +54,30 @@ console.log(isValidEmail("user@mansati.com"));`,
 </article>`,
   },
   {
-    title: "Hook لإدارة النموذج",
+    title: "تأثير hover على البطاقات",
     author: "ليلى عبدالله",
-    lang: "TS",
-    desc: "useForm مبسّط لإدارة حقول النماذج في React.",
+    lang: "CSS",
+    desc: "تأثير ارتفاع ناعم عند تمرير المؤشر فوق البطاقة.",
     views: 1567, likes: 423,
-    code: `export function useForm<T>(initial: T) {
-  const [values, setValues] = useState(initial);
-  const onChange = (k: keyof T, v: any) =>
-    setValues((s) => ({ ...s, [k]: v }));
-  return { values, onChange };
+    code: `.card {
+  transition: transform .3s, box-shadow .3s;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.12);
 }`,
   },
   {
-    title: "اتصال بقاعدة بيانات",
+    title: "قائمة منسدلة بـ JS",
     author: "عمر الطرابلسي",
-    lang: "PHP",
-    desc: "اتصال PDO آمن مع MySQL.",
+    lang: "JS",
+    desc: "فتح وإغلاق قائمة منسدلة عند النقر.",
     views: 670, likes: 145,
-    code: `<?php
-$pdo = new PDO(
-  "mysql:host=localhost;dbname=app",
-  "user", "pass"
-);
-$pdo->setAttribute(
-  PDO::ATTR_ERRMODE,
-  PDO::ERRMODE_EXCEPTION
-);`,
+    code: `const btn = document.querySelector('.menu-btn');
+const menu = document.querySelector('.menu');
+btn.addEventListener('click', () => {
+  menu.classList.toggle('open');
+});`,
   },
   {
     title: "Skeleton Loader أنيق",
@@ -105,11 +102,9 @@ const langStyles: Record<Snippet["lang"], string> = {
   HTML: "bg-cta/10 text-cta border-cta/20",
   CSS: "bg-primary-glow/15 text-primary-glow border-primary-glow/20",
   JS: "bg-secondary/30 text-primary border-secondary",
-  TS: "bg-primary/10 text-primary border-primary/20",
-  PHP: "bg-success/10 text-success border-success/20",
 };
 
-const filters = ["الكل", "HTML", "CSS", "JS", "TS", "PHP"] as const;
+const filters = ["الكل", "HTML", "CSS", "JS"] as const;
 
 export const SnippetsGrid = () => {
   const [active, setActive] = useState<(typeof filters)[number]>("الكل");
