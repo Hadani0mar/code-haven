@@ -1,14 +1,9 @@
-import { FileCode2, Palette, Braces, Database, Server, Smartphone, Terminal, Boxes } from "lucide-react";
+import { FileCode2, Palette, Braces } from "lucide-react";
 
 const cats = [
   { name: "HTML", icon: FileCode2, count: "1,240+", color: "bg-cta/10 text-cta" },
   { name: "CSS", icon: Palette, count: "980+", color: "bg-primary-glow/15 text-primary-glow" },
   { name: "JavaScript", icon: Braces, count: "2,150+", color: "bg-secondary/30 text-primary" },
-  { name: "قواعد البيانات", icon: Database, count: "560+", color: "bg-success/15 text-success" },
-  { name: "Backend", icon: Server, count: "740+", color: "bg-primary/10 text-primary" },
-  { name: "تطبيقات الموبايل", icon: Smartphone, count: "320+", color: "bg-cta/10 text-cta" },
-  { name: "أدوات وسكربتات", icon: Terminal, count: "1,020+", color: "bg-secondary/30 text-primary" },
-  { name: "مكتبات جاهزة", icon: Boxes, count: "410+", color: "bg-primary-glow/15 text-primary-glow" },
 ];
 
 export const Categories = () => {
