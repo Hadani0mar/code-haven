@@ -12,11 +12,11 @@ export const Categories = () => {
       <div className="container">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <p className="text-sm font-bold text-cta mb-2">التصنيفات</p>
-          <h2 className="text-3xl md:text-4xl font-black text-primary mb-3">تصفّح الأكواد حسب التصنيف</h2>
-          <p className="text-muted-foreground">اختر اللغة أو التقنية التي تهمك واستكشف آلاف الأكواد الجاهزة للاستخدام.</p>
+          <h2 className="text-3xl md:text-4xl font-black text-primary mb-3">تصفّح الأكواد حسب اللغة</h2>
+          <p className="text-muted-foreground">المنصة مخصصة للغات الويب الأساسية: HTML و CSS و JavaScript فقط.</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
           {cats.map((c) => {
             const Icon = c.icon;
             return (
