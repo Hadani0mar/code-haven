@@ -102,11 +102,9 @@ const langStyles: Record<Snippet["lang"], string> = {
   HTML: "bg-cta/10 text-cta border-cta/20",
   CSS: "bg-primary-glow/15 text-primary-glow border-primary-glow/20",
   JS: "bg-secondary/30 text-primary border-secondary",
-  TS: "bg-primary/10 text-primary border-primary/20",
-  PHP: "bg-success/10 text-success border-success/20",
 };
 
-const filters = ["الكل", "HTML", "CSS", "JS", "TS", "PHP"] as const;
+const filters = ["الكل", "HTML", "CSS", "JS"] as const;
 
 export const SnippetsGrid = () => {
   const [active, setActive] = useState<(typeof filters)[number]>("الكل");
