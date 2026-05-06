@@ -1,6 +1,7 @@
-import { Code2, Search, Menu } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import logo from "@/assets/logo.jpg";
 
 const links = [
   { href: "#snippets", label: "الأكواد" },
@@ -15,9 +16,7 @@ export const Navbar = () => {
     <header className="sticky top-0 z-50 backdrop-blur-lg bg-background/75 border-b border-border/60">
       <div className="container flex items-center justify-between h-16 md:h-20">
         <a href="#" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-hero grid place-items-center shadow-card-soft group-hover:shadow-glow transition-smooth">
-            <Code2 className="w-5 h-5 text-secondary" />
-          </div>
+          <img src={logo} alt="شعار منصتي" className="w-11 h-11 rounded-xl object-contain bg-background shadow-card-soft group-hover:shadow-glow transition-smooth" />
           <div className="leading-tight">
             <div className="font-extrabold text-lg text-primary">منصتي</div>
             <div className="text-[10px] text-muted-foreground -mt-0.5">منصة ليبية لتبادل الأكواد</div>
@@ -36,7 +35,7 @@ export const Navbar = () => {
           <Button variant="ghost" size="icon" aria-label="بحث">
             <Search className="w-5 h-5" />
           </Button>
-          <Button variant="cta" size="sm">اشترك الآن</Button>
+          <Button variant="cta" size="sm">تصفّح الأكواد</Button>
         </div>
 
         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(!open)} aria-label="القائمة">
@@ -52,7 +51,7 @@ export const Navbar = () => {
                 {l.label}
               </a>
             ))}
-            <Button variant="cta">اشترك الآن</Button>
+            <Button variant="cta">تصفّح الأكواد</Button>
           </div>
         </div>
       )}

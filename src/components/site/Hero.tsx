@@ -51,8 +51,8 @@ export const Hero = () => {
           </ul>
 
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button variant="cta" size="xl">اشترك الآن لبدء المشاركة</Button>
-            <Button variant="outlineOnDark" size="xl">تصفّح الأكواد</Button>
+            <Button variant="cta" size="xl">تصفّح مكتبة الأكواد</Button>
+            <Button variant="outlineOnDark" size="xl">اعرف المزيد</Button>
           </div>
         </div>
 
