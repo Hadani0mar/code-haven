@@ -101,6 +101,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_snippet_likes: {
+        Args: { snippet_id: string }
+        Returns: undefined
+      }
+      increment_snippet_views: {
+        Args: { snippet_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"

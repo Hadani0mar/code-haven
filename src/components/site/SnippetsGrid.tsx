@@ -1,104 +1,22 @@
-import { Heart, Copy } from "lucide-react";
+import { Heart, Copy, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 type Snippet = {
+  id: string;
   title: string;
-  author: string;
-  lang: "HTML" | "CSS" | "JS";
-  code: string;
+  description: string | null;
+  language: string;
+  code: string | null;
+  file_url: string | null;
+  file_name: string | null;
   views: number;
   likes: number;
-  desc: string;
 };
 
-const SNIPPETS: Snippet[] = [
-  {
-    title: "زر متحرك بتدرج لوني",
-    author: "أحمد المصري",
-    lang: "CSS",
-    desc: "زر بتأثير hover ناعم وتدرّج لوني جذّاب.",
-    views: 1240, likes: 312,
-    code: `.btn-glow {
-  background: linear-gradient(135deg, #FFD23F, #FF6B35);
-  border-radius: 999px;
-  padding: 12px 28px;
-  transition: transform .3s;
-}
-.btn-glow:hover { transform: scale(1.05); }`,
-  },
-  {
-    title: "تحقق من البريد الإلكتروني",
-    author: "سارة بن علي",
-    lang: "JS",
-    desc: "دالة بسيطة وسريعة للتحقق من صحة الإيميل.",
-    views: 890, likes: 201,
-    code: `function isValidEmail(email) {
-  const re = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
-  return re.test(email);
-}
-
-console.log(isValidEmail("user@mansati.com"));`,
-  },
-  {
-    title: "بطاقة منتج Responsive",
-    author: "خالد الليبي",
-    lang: "HTML",
-    desc: "هيكل بطاقة منتج متجاوب مع جميع الشاشات.",
-    views: 2103, likes: 540,
-    code: `<article class="card">
-  <img src="product.jpg" alt="منتج" />
-  <h3>اسم المنتج</h3>
-  <p>وصف قصير للمنتج.</p>
-  <button>اشتري الآن</button>
-</article>`,
-  },
-  {
-    title: "تأثير hover على البطاقات",
-    author: "ليلى عبدالله",
-    lang: "CSS",
-    desc: "تأثير ارتفاع ناعم عند تمرير المؤشر فوق البطاقة.",
-    views: 1567, likes: 423,
-    code: `.card {
-  transition: transform .3s, box-shadow .3s;
-}
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0,0,0,.12);
-}`,
-  },
-  {
-    title: "قائمة منسدلة بـ JS",
-    author: "عمر الطرابلسي",
-    lang: "JS",
-    desc: "فتح وإغلاق قائمة منسدلة عند النقر.",
-    views: 670, likes: 145,
-    code: `const btn = document.querySelector('.menu-btn');
-const menu = document.querySelector('.menu');
-btn.addEventListener('click', () => {
-  menu.classList.toggle('open');
-});`,
-  },
-  {
-    title: "Skeleton Loader أنيق",
-    author: "نور الدين",
-    lang: "CSS",
-    desc: "تأثير تحميل بسيط وأنيق بدون مكتبات.",
-    views: 980, likes: 278,
-    code: `.skeleton {
-  background: linear-gradient(
-    90deg, #eee 25%, #f5f5f5 50%, #eee 75%
-  );
-  background-size: 200% 100%;
-  animation: shine 1.4s infinite;
-}
-@keyframes shine {
-  to { background-position: -200% 0; }
-}`,
-  },
-];
-
-const langStyles: Record<Snippet["lang"], string> = {
+const langStyles: Record<string, string> = {
   HTML: "bg-cta/10 text-cta border-cta/20",
   CSS: "bg-primary-glow/15 text-primary-glow border-primary-glow/20",
   JS: "bg-secondary/30 text-primary border-secondary",
@@ -108,7 +26,43 @@ const filters = ["الكل", "HTML", "CSS", "JS"] as const;
 
 export const SnippetsGrid = () => {
   const [active, setActive] = useState<(typeof filters)[number]>("الكل");
-  const list = active === "الكل" ? SNIPPETS : SNIPPETS.filter((s) => s.lang === active);
+  const [items, setItems] = useState<Snippet[]>([]);
+  const [liked, setLiked] = useState<Set<string>>(
+    () => new Set(JSON.parse(localStorage.getItem("liked_snippets") || "[]")),
+  );
+
+  const load = async () => {
+    const { data } = await supabase
+      .from("snippets")
+      .select("id,title,description,language,code,file_url,file_name,views,likes")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+    setItems((data as Snippet[]) || []);
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const list = active === "الكل" ? items : items.filter((s) => s.language === active);
+
+  const handleCopy = async (s: Snippet) => {
+    if (!s.code) return;
+    await navigator.clipboard.writeText(s.code);
+    await supabase.rpc("increment_snippet_views", { snippet_id: s.id });
+    setItems((prev) => prev.map((x) => (x.id === s.id ? { ...x, views: x.views + 1 } : x)));
+    toast({ title: "تم نسخ الكود" });
+  };
+
+  const handleLike = async (s: Snippet) => {
+    if (liked.has(s.id)) return;
+    await supabase.rpc("increment_snippet_likes", { snippet_id: s.id });
+    const next = new Set(liked);
+    next.add(s.id);
+    setLiked(next);
+    localStorage.setItem("liked_snippets", JSON.stringify([...next]));
+    setItems((prev) => prev.map((x) => (x.id === s.id ? { ...x, likes: x.likes + 1 } : x)));
+  };
 
   return (
     <section id="snippets" className="py-20">
@@ -135,10 +89,14 @@ export const SnippetsGrid = () => {
           </div>
         </div>
 
+        {!list.length && (
+          <p className="text-center text-muted-foreground py-16">لا توجد أكواد بعد.</p>
+        )}
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {list.map((s, i) => (
             <article
-              key={s.title}
+              key={s.id}
               className="group rounded-2xl bg-card border border-border overflow-hidden shadow-card-soft hover:shadow-elegant transition-smooth hover:-translate-y-1 animate-fade-up"
               style={{ animationDelay: `${i * 60}ms` }}
             >
@@ -148,37 +106,55 @@ export const SnippetsGrid = () => {
                   <span className="w-2.5 h-2.5 rounded-full bg-secondary" />
                   <span className="w-2.5 h-2.5 rounded-full bg-success" />
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-1 rounded border ${langStyles[s.lang]}`}>{s.lang}</span>
+                <span className={`text-[10px] font-bold px-2 py-1 rounded border ${langStyles[s.language] || "bg-muted text-foreground border-border"}`}>
+                  {s.language}
+                </span>
               </header>
 
-              <pre dir="ltr" className="bg-primary/95 text-primary-foreground/90 p-5 text-xs leading-relaxed overflow-x-auto max-h-44 font-mono">
-                <code>{s.code}</code>
-              </pre>
+              {s.code && (
+                <pre dir="ltr" className="bg-primary/95 text-primary-foreground/90 p-5 text-xs leading-relaxed overflow-x-auto max-h-44 font-mono">
+                  <code>{s.code}</code>
+                </pre>
+              )}
 
               <div className="p-5 space-y-3">
                 <h3 className="font-bold text-lg text-primary">{s.title}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">{s.desc}</p>
+                {s.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">{s.description}</p>
+                )}
                 <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5 font-semibold">
                     <Copy className="w-3.5 h-3.5" />
                     {s.views} نسخة
                   </span>
-                  <span className="flex items-center gap-1.5 font-semibold">
-                    <Heart className="w-3.5 h-3.5" />
+                  <button
+                    onClick={() => handleLike(s)}
+                    disabled={liked.has(s.id)}
+                    className={`flex items-center gap-1.5 font-semibold transition-smooth ${
+                      liked.has(s.id) ? "text-cta" : "hover:text-cta"
+                    }`}
+                  >
+                    <Heart className={`w-3.5 h-3.5 ${liked.has(s.id) ? "fill-current" : ""}`} />
                     {s.likes} تفاعل
-                  </span>
+                  </button>
                 </div>
-                <Button variant="outline" size="sm" className="w-full gap-2">
-                  <Copy className="w-4 h-4" />
-                  نسخ الكود
-                </Button>
+                {s.code && (
+                  <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => handleCopy(s)}>
+                    <Copy className="w-4 h-4" />
+                    نسخ الكود
+                  </Button>
+                )}
+                {s.file_url && (
+                  <Button variant="outline" size="sm" className="w-full gap-2" asChild>
+                    <a href={s.file_url} download={s.file_name || true} target="_blank" rel="noreferrer">
+                      <Download className="w-4 h-4" />
+                      تحميل الملف
+                    </a>
+                  </Button>
+                )}
               </div>
             </article>
           ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Button variant="hero" size="lg">عرض جميع الأكواد</Button>
         </div>
       </div>
     </section>
