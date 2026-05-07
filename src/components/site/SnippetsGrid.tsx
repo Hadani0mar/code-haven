@@ -64,6 +64,26 @@ export const SnippetsGrid = () => {
     setItems((prev) => prev.map((x) => (x.id === s.id ? { ...x, likes: x.likes + 1 } : x)));
   };
 
+  const handleDownload = async (s: Snippet) => {
+    if (!s.file_url) return;
+    try {
+      const res = await fetch(s.file_url);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = s.file_name || `${s.title}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      await supabase.rpc("increment_snippet_views", { snippet_id: s.id });
+      setItems((prev) => prev.map((x) => (x.id === s.id ? { ...x, views: x.views + 1 } : x)));
+    } catch {
+      window.open(s.file_url, "_blank");
+    }
+  };
+
   return (
     <section id="snippets" className="py-20">
       <div className="container">
