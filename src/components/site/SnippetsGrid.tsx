@@ -145,11 +145,14 @@ export const SnippetsGrid = () => {
                   </Button>
                 )}
                 {s.file_url && (
-                  <Button variant="outline" size="sm" className="w-full gap-2" asChild>
-                    <a href={s.file_url} download={s.file_name || true} target="_blank" rel="noreferrer">
-                      <Download className="w-4 h-4" />
-                      تحميل الملف
-                    </a>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full gap-2"
+                    onClick={() => handleDownload(s)}
+                  >
+                    <Download className="w-4 h-4" />
+                    تحميل الملف
                   </Button>
                 )}
               </div>
