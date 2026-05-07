@@ -46,6 +46,21 @@ Deno.serve(async (req) => {
       });
     }
 
+
+    if (action === "update") {
+      const { id, patch } = payload;
+      const { data, error } = await supabase
+        .from("snippets")
+        .update(patch)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return new Response(JSON.stringify({ data }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "delete") {
       const { error } = await supabase.from("snippets").delete().eq("id", payload.id);
       if (error) throw error;

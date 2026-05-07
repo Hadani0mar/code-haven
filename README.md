@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# منصة منصتي
 
-TODO: Document your project here
+واجهة ويب عربية لمشاركة الأكواد وعرضها مع لوحة إدارة مخصصة واتصال Supabase.
