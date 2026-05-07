@@ -8,10 +8,11 @@ export const CTA = () => (
         <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-secondary/20 blur-3xl" />
         <div className="relative max-w-2xl">
           <h2 className="text-3xl md:text-5xl font-black leading-tight mb-4">
-            جاهز لمشاركة <span className="text-secondary">إبداعك البرمجي</span> مع العالم؟
+            مكتبة <span className="text-secondary">أكواد جاهزة</span> بين يديك
           </h2>
           <p className="text-primary-foreground/85 text-lg mb-8">
-            انضم إلى آلاف المطورين العرب وابدأ بنشر أكوادك، ساعد غيرك واستفد من خبرات المجتمع.
+            تصفّح أكواد HTML و CSS و JavaScript المنشورة من فريق منصتي، انسخها أو حمّلها واستخدمها
+            مباشرة في مشاريعك بدون تسجيل أو اشتراك.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button variant="cta" size="xl">تصفّح الأكواد الآن</Button>
