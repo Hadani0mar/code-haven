@@ -1,4 +1,4 @@
-import { Search, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import logo from "@/assets/logo.jpg";
@@ -32,10 +32,9 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="icon" aria-label="بحث">
-            <Search className="w-5 h-5" />
+          <Button variant="cta" size="sm" asChild>
+            <a href="#snippets">تصفّح الأكواد</a>
           </Button>
-          <Button variant="cta" size="sm">تصفّح الأكواد</Button>
         </div>
 
         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(!open)} aria-label="القائمة">
@@ -51,7 +50,9 @@ export const Navbar = () => {
                 {l.label}
               </a>
             ))}
-            <Button variant="cta">تصفّح الأكواد</Button>
+            <Button variant="cta" asChild>
+              <a href="#snippets" onClick={() => setOpen(false)}>تصفّح الأكواد</a>
+            </Button>
           </div>
         </div>
       )}

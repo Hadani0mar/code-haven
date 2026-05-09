@@ -51,8 +51,12 @@ export const Hero = () => {
           </ul>
 
           <div className="flex flex-wrap gap-3 pt-2">
-            <Button variant="cta" size="xl">تصفّح مكتبة الأكواد</Button>
-            <Button variant="outlineOnDark" size="xl">اعرف المزيد</Button>
+            <Button variant="cta" size="xl" asChild>
+              <a href="#snippets">تصفّح مكتبة الأكواد</a>
+            </Button>
+            <Button variant="outlineOnDark" size="xl" asChild>
+              <a href="#categories">اعرف المزيد</a>
+            </Button>
           </div>
         </div>
 
@@ -100,15 +104,6 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Bottom CTA strip */}
-      <div className="relative">
-        <div className="bg-secondary text-secondary-foreground">
-          <div className="container py-4 flex flex-wrap items-center justify-center md:justify-between gap-3 text-sm md:text-base font-bold">
-            <span>📞 تواصل معنا — انضم إلى أكبر مجتمع للمطورين العرب</span>
-            <a href="#" className="underline underline-offset-4">www.mansati.com</a>
-          </div>
-        </div>
-      </div>
     </section>
   );
 };

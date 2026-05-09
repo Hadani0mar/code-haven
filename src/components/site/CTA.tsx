@@ -15,8 +15,12 @@ export const CTA = () => (
             مباشرة في مشاريعك بدون تسجيل أو اشتراك.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button variant="cta" size="xl">تصفّح الأكواد الآن</Button>
-            <Button variant="outlineOnDark" size="xl">تعرّف على المنصة</Button>
+            <Button variant="cta" size="xl" asChild>
+              <a href="#snippets">تصفّح الأكواد الآن</a>
+            </Button>
+            <Button variant="outlineOnDark" size="xl" asChild>
+              <a href="#categories">تعرّف على المنصة</a>
+            </Button>
           </div>
         </div>
       </div>

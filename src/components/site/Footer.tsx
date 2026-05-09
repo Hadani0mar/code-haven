@@ -37,7 +37,6 @@ export const Footer = () => (
             </a>
           ))}
         </div>
-        <p className="text-xs text-primary-foreground/60 mt-6">www.mansati.com</p>
       </div>
     </div>
     <div className="border-t border-primary-foreground/10">
