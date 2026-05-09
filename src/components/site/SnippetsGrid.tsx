@@ -4,6 +4,23 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+const SkeletonCard = () => (
+  <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-card-soft animate-pulse">
+    <div className="h-10 bg-primary/80" />
+    <div className="h-44 bg-primary/10" />
+    <div className="p-5 space-y-3">
+      <div className="h-5 w-2/3 rounded bg-muted" />
+      <div className="h-3 w-full rounded bg-muted" />
+      <div className="h-3 w-4/5 rounded bg-muted" />
+      <div className="flex justify-between pt-2 border-t border-border">
+        <div className="h-3 w-16 rounded bg-muted" />
+        <div className="h-3 w-16 rounded bg-muted" />
+      </div>
+      <div className="h-8 w-full rounded-lg bg-muted" />
+    </div>
+  </div>
+);
+
 type Snippet = {
   id: string;
   title: string;
@@ -27,17 +44,20 @@ const filters = ["الكل", "HTML", "CSS", "JS"] as const;
 export const SnippetsGrid = () => {
   const [active, setActive] = useState<(typeof filters)[number]>("الكل");
   const [items, setItems] = useState<Snippet[]>([]);
+  const [loadingSnippets, setLoadingSnippets] = useState(true);
   const [liked, setLiked] = useState<Set<string>>(
     () => new Set(JSON.parse(localStorage.getItem("liked_snippets") || "[]")),
   );
 
   const load = async () => {
+    setLoadingSnippets(true);
     const { data } = await supabase
       .from("snippets")
       .select("id,title,description,language,code,file_url,file_name,views,likes")
       .eq("published", true)
       .order("created_at", { ascending: false });
     setItems((data as Snippet[]) || []);
+    setLoadingSnippets(false);
   };
 
   useEffect(() => {
@@ -109,10 +129,17 @@ export const SnippetsGrid = () => {
           </div>
         </div>
 
-        {!list.length && (
+        {loadingSnippets && (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        )}
+
+        {!loadingSnippets && !list.length && (
           <p className="text-center text-muted-foreground py-16">لا توجد أكواد بعد.</p>
         )}
 
+        {!loadingSnippets && (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {list.map((s, i) => (
             <article
@@ -179,6 +206,7 @@ export const SnippetsGrid = () => {
             </article>
           ))}
         </div>
+        )}
       </div>
     </section>
   );
