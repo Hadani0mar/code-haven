@@ -37,9 +37,13 @@ const langStyles: Record<string, string> = {
   HTML: "bg-cta/10 text-cta border-cta/20",
   CSS: "bg-primary-glow/15 text-primary-glow border-primary-glow/20",
   JS: "bg-secondary/30 text-primary border-secondary",
+  FULL: "bg-success/15 text-success border-success/20",
 };
 
-const filters = ["الكل", "HTML", "CSS", "JS"] as const;
+const filters = ["الكل", "HTML", "CSS", "JS", "FULL"] as const;
+
+const buildFullHtml = (title: string, html: string, css: string, js: string) =>
+  `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>${title}</title>\n<style>\n${css}\n</style>\n</head>\n<body>\n${html}\n<script>\n${js}\n<\/script>\n</body>\n</html>`;
 
 export const SnippetsGrid = () => {
   const [active, setActive] = useState<(typeof filters)[number]>("الكل");
@@ -65,6 +69,27 @@ export const SnippetsGrid = () => {
   }, []);
 
   const list = active === "الكل" ? items : items.filter((s) => s.language === active);
+
+  const handleDownloadFull = async (s: Snippet) => {
+    try {
+      const parts = JSON.parse(s.code || "{}");
+      const fullHtml = buildFullHtml(s.title, parts.html || "", parts.css || "", parts.js || "");
+      const blob = new Blob([fullHtml], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${s.title}.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      await supabase.rpc("increment_snippet_views", { snippet_id: s.id });
+      setItems((prev) => prev.map((x) => (x.id === s.id ? { ...x, views: x.views + 1 } : x)));
+      toast({ title: "تم تحميل الملف" });
+    } catch {
+      toast({ title: "فشل التحميل", variant: "destructive" });
+    }
+  };
 
   const handleCopy = async (s: Snippet) => {
     if (!s.code) return;
@@ -158,7 +183,23 @@ export const SnippetsGrid = () => {
                 </span>
               </header>
 
-              {s.code && (
+              {s.language === "FULL" ? (
+                <div className="bg-primary/95 p-5 flex flex-col gap-1.5" dir="ltr">
+                  {["html", "css", "js"].map((part) => {
+                    try {
+                      const parsed = JSON.parse(s.code || "{}");
+                      const val = (parsed[part] || "").trim();
+                      if (!val) return null;
+                      return (
+                        <div key={part} className="text-[10px] font-mono text-primary-foreground/60 truncate">
+                          <span className="text-secondary font-bold mr-1">{part.toUpperCase()}</span>
+                          {val.split("\n")[0]}
+                        </div>
+                      );
+                    } catch { return null; }
+                  })}
+                </div>
+              ) : s.code && (
                 <pre dir="ltr" className="bg-primary/95 text-primary-foreground/90 p-5 text-xs leading-relaxed overflow-x-auto max-h-44 font-mono">
                   <code>{s.code}</code>
                 </pre>
@@ -185,22 +226,26 @@ export const SnippetsGrid = () => {
                     {s.likes} تفاعل
                   </button>
                 </div>
-                {s.code && (
-                  <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => handleCopy(s)}>
-                    <Copy className="w-4 h-4" />
-                    نسخ الكود
-                  </Button>
-                )}
-                {s.file_url && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-2"
-                    onClick={() => handleDownload(s)}
-                  >
+                {s.language === "FULL" ? (
+                  <Button variant="cta" size="sm" className="w-full gap-2" onClick={() => handleDownloadFull(s)}>
                     <Download className="w-4 h-4" />
-                    تحميل الملف
+                    تحميل الكود كاملاً (.html)
                   </Button>
+                ) : (
+                  <>
+                    {s.code && (
+                      <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => handleCopy(s)}>
+                        <Copy className="w-4 h-4" />
+                        نسخ الكود
+                      </Button>
+                    )}
+                    {s.file_url && (
+                      <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => handleDownload(s)}>
+                        <Download className="w-4 h-4" />
+                        تحميل الملف
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             </article>

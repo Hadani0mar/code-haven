@@ -42,7 +42,7 @@ import {
 const STORAGE_KEY = "admin_code";
 const PAGE_SIZE = 8;
 
-type Lang = "HTML" | "CSS" | "JS";
+type Lang = "HTML" | "CSS" | "JS" | "FULL";
 type Snippet = {
   id: string;
   title: string;
@@ -64,6 +64,16 @@ const langStyles: Record<string, string> = {
   HTML: "bg-cta/10 text-cta border-cta/20",
   CSS: "bg-primary-glow/15 text-primary-glow border-primary-glow/20",
   JS: "bg-secondary/30 text-primary border-secondary",
+  FULL: "bg-success/15 text-success border-success/20",
+};
+
+const parseFullParts = (code: string | null) => {
+  try {
+    const p = JSON.parse(code || "{}");
+    return { html: p.html || "", css: p.css || "", js: p.js || "" };
+  } catch {
+    return { html: "", css: "", js: "" };
+  }
 };
 
 const Admin = () => {
@@ -83,6 +93,9 @@ const Admin = () => {
   const [category, setCategory] = useState("");
   const [language, setLanguage] = useState<Lang>("HTML");
   const [snippetCode, setSnippetCode] = useState("");
+  const [htmlCode, setHtmlCode] = useState("");
+  const [cssCode, setCssCode] = useState("");
+  const [jsCode, setJsCode] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [published, setPublished] = useState(true);
 
@@ -146,6 +159,7 @@ const Admin = () => {
     setCategory("");
     setLanguage("HTML");
     setSnippetCode("");
+    setHtmlCode(""); setCssCode(""); setJsCode("");
     setFile(null);
     setPublished(true);
   };
@@ -156,17 +170,29 @@ const Admin = () => {
     setDescription(s.description || "");
     setCategory(s.category || "");
     setLanguage(s.language);
-    setSnippetCode(s.code || "");
+    if (s.language === "FULL") {
+      const parts = parseFullParts(s.code);
+      setHtmlCode(parts.html); setCssCode(parts.css); setJsCode(parts.js);
+      setSnippetCode("");
+    } else {
+      setSnippetCode(s.code || "");
+      setHtmlCode(""); setCssCode(""); setJsCode("");
+    }
     setPublished(s.published);
     setFile(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || (!snippetCode.trim() && !file && !editingId)) {
+    const isFull = language === "FULL";
+    const hasCode = isFull ? (htmlCode.trim() || cssCode.trim() || jsCode.trim()) : snippetCode.trim();
+    if (!title.trim() || (!hasCode && !file && !editingId)) {
       toast({ title: "أدخل عنوان وكود أو ملف", variant: "destructive" });
       return;
     }
+    const finalCode = isFull
+      ? JSON.stringify({ html: htmlCode, css: cssCode, js: jsCode })
+      : snippetCode || null;
     setLoading(true);
     try {
       let file_url: string | null | undefined = undefined;
@@ -186,7 +212,7 @@ const Admin = () => {
         const payload: Record<string, unknown> = {
           id: editingId, title, description,
           category: category || null,
-          language, code: snippetCode || null, published,
+          language, code: finalCode, published,
         };
         if (file_url !== undefined) { payload.file_url = file_url; payload.file_name = file_name; }
         await callApi("update", payload);
@@ -194,7 +220,7 @@ const Admin = () => {
       } else {
         await callApi("insert", {
           title, description, category: category || null,
-          language, code: snippetCode || null,
+          language, code: finalCode,
           file_url: file_url ?? null, file_name: file_name ?? null, published,
         });
         toast({ title: "تم النشر بنجاح" });
@@ -449,7 +475,7 @@ const Admin = () => {
               <Input placeholder="التصنيف (مثال: نماذج، قوائم، تأثيرات...)" value={category} onChange={(e) => setCategory(e.target.value)} />
               <Textarea placeholder="وصف مختصر" value={description} onChange={(e) => setDescription(e.target.value)} />
               <div className="flex gap-2">
-                {(["HTML", "CSS", "JS"] as const).map((l) => (
+                {(["HTML", "CSS", "JS", "FULL"] as const).map((l) => (
                   <button
                     key={l}
                     onClick={() => setLanguage(l)}
@@ -457,10 +483,29 @@ const Admin = () => {
                       language === l ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary"
                     }`}
                   >
-                    {l}
+                    {l === "FULL" ? "كاملة" : l}
                   </button>
                 ))}
               </div>
+
+              {language === "FULL" ? (
+                <div className="space-y-2">
+                  {([
+                    { key: "html" as const, label: "HTML", color: "bg-cta/10 border-cta/30", textColor: "text-cta", val: htmlCode, set: setHtmlCode, ph: "<div>كود HTML هنا...</div>" },
+                    { key: "css" as const, label: "CSS", color: "bg-primary-glow/10 border-primary-glow/30", textColor: "text-primary-glow", val: cssCode, set: setCssCode, ph: "body { margin: 0; }" },
+                    { key: "js" as const, label: "JS", color: "bg-secondary/20 border-secondary/30", textColor: "text-primary", val: jsCode, set: setJsCode, ph: "console.log('مرحبا');" },
+                  ]).map((part) => (
+                    <div key={part.key} className="rounded-lg border border-border overflow-hidden">
+                      <div className={`flex items-center gap-2 px-3 py-1.5 ${part.color} border-b border-border`}>
+                        <span className={`text-[10px] font-bold ${part.textColor}`}>{part.label}</span>
+                      </div>
+                      <Textarea dir="ltr" placeholder={part.ph} value={part.val} onChange={(e) => part.set(e.target.value)}
+                        className="font-mono min-h-24 rounded-none border-0 focus-visible:ring-0" />
+                    </div>
+                  ))}
+                  <p className="text-[11px] text-muted-foreground text-center">سيتم تجميع الأكواد في ملف HTML واحد قابل للتنزيل</p>
+                </div>
+              ) : (
               <div className="relative rounded-lg border border-border overflow-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0">
                 <div className="flex" dir="ltr">
                   <div
@@ -492,6 +537,7 @@ const Admin = () => {
                   />
                 </div>
               </div>
+              )}
               <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-smooth">
                 <Upload className="w-4 h-4" />
                 <span className="text-sm">{file ? file.name : "أو ارفع ملف (اختياري)"}</span>
