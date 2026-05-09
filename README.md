@@ -1,3 +1,18 @@
-# Welcome to your Lovable project
+# منصتي
 
-TODO: Document your project here
+منصة عربية مبسّطة لمشاركة وتصفّح أكواد HTML و CSS و JavaScript الجاهزة.
+ينشر فريق المنصة الأكواد عبر لوحة إدارة محمية، ويستطيع أي زائر تصفّحها ونسخها
+أو تحميلها مباشرة دون الحاجة للتسجيل.
+
+## التشغيل محلياً
+
+```bash
+npm install
+npm run dev
+```
+
+## التقنيات
+
+- React 18 + Vite + TypeScript
+- Tailwind CSS + shadcn/ui
+- قاعدة بيانات وسحابة خلفية مُدارة
