@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<title>khadija.js</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: #0d1117;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .editor {
+    width: 100%;
+    max-width: 680px;
+    background: #161b22;
+    border-radius: 10px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    border: 1px solid #21262d;
+  }
+  .titlebar {
+    background: #0d1117;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #21262d;
+  }
+  .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+  }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .filename {
+    color: #8b949e;
+    font-size: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    letter-spacing: 0.5px;
+  }
+  .code {
+    padding: 26px 22px;
+    min-height: 460px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: #c9d1d9;
+    direction: ltr;
+    text-align: left;
+    white-space: pre;
+    word-break: normal;
+    overflow-x: auto;
+  }
+  .keyword { color: #ff7b72; }
+  .func    { color: #d2a8ff; }
+  .string  { color: #a5d6ff; }
+  .var     { color: #79c0ff; }
+  .comment { color: #8b949e; font-style: italic; }
+  .punct   { color: #c9d1d9; }
+  .num-val { color: #f2cc60; }
+  .heart   { color: #ff6b9d; }
+  .name    { color: #f2cc60; font-weight: bold; }
+
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: #c9d1d9;
+    vertical-align: text-bottom;
+    margin-left: 1px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  @media (max-width: 600px) {
+    .code { padding: 18px 14px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="editor">
+  <div class="titlebar">
+    <span class="dot r"></span>
+    <span class="dot y"></span>
+    <span class="dot g"></span>
+    <span class="filename">khadija.js</span>
+  </div>
+  <div class="code" id="code"><span class="cursor" id="cursor"></span></div>
+</div>
+
+<script>
+  const tokens = [
+    { t: '/**\n', c: 'comment' },
+    { t: ' * I tried to write this in words,\n', c: 'comment' },
+    { t: ' * but code is the only language I trust.\n', c: 'comment' },
+    { t: ' */\n', c: 'comment' },
+    { t: '\n', c: '' },
+
+    { t: 'const', c: 'keyword' }, { t: ' ', c: '' },
+    { t: 'her', c: 'var' }, { t: ' = ', c: 'punct' },
+    { t: '"', c: 'string' },
+    { t: 'خديجة', c: 'name' },
+    { t: '"', c: 'string' },
+    { t: ';\n', c: 'punct' },
+    { t: '\n', c: '' },
+
+    { t: 'function', c: 'keyword' }, { t: ' ', c: '' },
+    { t: 'whyHer', c: 'func' }, { t: '() {\n', c: 'punct' },
+    { t: '  ', c: '' },
+    { t: 'return', c: 'keyword' }, { t: ' {\n', c: 'punct' },
+
+    { t: '    smile:    ', c: 'var' }, { t: '"my favorite bug"', c: 'string' }, { t: ',\n', c: 'punct' },
+    { t: '    voice:    ', c: 'var' }, { t: '"the only sound that compiles"', c: 'string' }, { t: ',\n', c: 'punct' },
+    { t: '    presence: ', c: 'var' }, { t: '"home"', c: 'string' }, { t: ',\n', c: 'punct' },
+
+    { t: '  };\n', c: 'punct' },
+    { t: '}\n', c: 'punct' },
+    { t: '\n', c: '' },
+
+    { t: '// every loop runs back to her\n', c: 'comment' },
+    { t: 'while', c: 'keyword' }, { t: ' (', c: 'punct' },
+    { t: 'I.', c: 'var' }, { t: 'breathe', c: 'func' }, { t: '()) {\n', c: 'punct' },
+    { t: '  ', c: '' },
+    { t: 'my', c: 'var' }, { t: '.', c: 'punct' }, { t: 'heart', c: 'func' }, { t: '.', c: 'punct' },
+    { t: 'beat', c: 'func' }, { t: '(', c: 'punct' },
+    { t: 'her', c: 'var' }, { t: ');\n', c: 'punct' },
+    { t: '}\n', c: 'punct' },
+    { t: '\n', c: '' },
+
+    { t: 'console', c: 'var' }, { t: '.', c: 'punct' }, { t: 'log', c: 'func' },
+    { t: '(', c: 'punct' }, { t: '`I love you, ', c: 'string' },
+    { t: '${', c: 'punct' }, { t: 'her', c: 'var' }, { t: '}', c: 'punct' },
+    { t: '`', c: 'string' }, { t: ');\n', c: 'punct' },
+    { t: '\n', c: '' },
+
+    { t: '// > I love you, خديجة\n', c: 'comment' },
+    { t: '\n', c: '' },
+
+    { t: '       ', c: '' }, { t: '_____', c: 'heart' }, { t: '       ', c: '' }, { t: '_____\n', c: 'heart' },
+    { t: '     ', c: '' }, { t: '/     \\', c: 'heart' }, { t: '   ', c: '' }, { t: '/     \\\n', c: 'heart' },
+    { t: '    ', c: '' }, { t: '|       \\_/       |\n', c: 'heart' },
+    { t: '    ', c: '' }, { t: '|     خديجة     |\n', c: 'heart' },
+    { t: '     ', c: '' }, { t: '\\               /\n', c: 'heart' },
+    { t: '      ', c: '' }, { t: '\\             /\n', c: 'heart' },
+    { t: '       ', c: '' }, { t: '\\           /\n', c: 'heart' },
+    { t: '        ', c: '' }, { t: '\\         /\n', c: 'heart' },
+    { t: '         ', c: '' }, { t: '\\       /\n', c: 'heart' },
+    { t: '          ', c: '' }, { t: '\\     /\n', c: 'heart' },
+    { t: '           ', c: '' }, { t: '\\   /\n', c: 'heart' },
+    { t: '            ', c: '' }, { t: '\\ /\n', c: 'heart' },
+    { t: '             ', c: '' }, { t: 'V\n', c: 'heart' }
+  ];
+
+  const codeEl = document.getElementById('code');
+  const cursor = document.getElementById('cursor');
+
+  let tokenIdx = 0;
+  let charIdx = 0;
+  let currentSpan = null;
+
+  function type() {
+    if (tokenIdx >= tokens.length) return;
+
+    const token = tokens[tokenIdx];
+
+    if (charIdx === 0) {
+      if (token.c) {
+        currentSpan = document.createElement('span');
+        currentSpan.className = token.c;
+        codeEl.insertBefore(currentSpan, cursor);
+      } else {
+        currentSpan = null;
+      }
+    }
+
+    const ch = token.t[charIdx];
+    if (currentSpan) {
+      currentSpan.textContent += ch;
+    } else {
+      codeEl.insertBefore(document.createTextNode(ch), cursor);
+    }
+
+    charIdx++;
+
+    if (charIdx >= token.t.length) {
+      tokenIdx++;
+      charIdx = 0;
+    }
+
+    let delay;
+    if (ch === '\n') delay = 180;
+    else if (token.c === 'heart') delay = 25;
+    else if (token.c === 'comment') delay = 30 + Math.random() * 20;
+    else if (token.c === 'name') delay = 120;
+    else delay = 55 + Math.random() * 45;
+
+    setTimeout(type, delay);
+  }
+
+  setTimeout(type, 500);
+</script>
+
+</body>
+</html>
