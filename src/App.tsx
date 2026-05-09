@@ -13,7 +13,9 @@ import NotFound from "./pages/NotFound.tsx";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [splashDone, setSplashDone] = useState(false);
+  const [splashDone, setSplashDone] = useState(
+    () => window.location.pathname === "/khdija",
+  );
 
   return (
     <>
