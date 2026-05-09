@@ -1,0 +1,11 @@
+## .NET
+bin/
+obj/
+publish/
+*.user
+*.suo
+.vs/
+*.log
+
+## User-specific settings (no passwords stored but still user-local)
+settings.json
